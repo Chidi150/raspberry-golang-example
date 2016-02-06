@@ -1,0 +1,18 @@
+go-native-builder:
+        image: golang:1.5.3
+        volumes_from:
+          - persistent-data
+        working_dir: /go/src/myapp
+        volumes:
+          - ~/.gitconfig:/root/.gitconfig:ro
+        devices:
+          - "/dev/video0:/dev/video0"
+
+persistent-data:
+        build: .
+        dockerfile: Dockerfile.data
+        volumes:
+          - "${GO_SRC}:/go/src/myapp"
+          - /go/bin
+          - /go/package
+          - /go/src
