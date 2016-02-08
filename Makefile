@@ -18,7 +18,7 @@ shell:
 
 shell-pi:
 		$(call pinfo,entering shell - mounting $(src_dir).)
-		GO_SRC="$(MAKE_GO_SRC)" docker-compose run --rm -e GOOS=linux -e GOARCH=arm -e CGO_ENABLED=1 go-native-builder /bin/bash
+		GO_SRC="$(MAKE_GO_SRC)" docker-compose run --rm -e GOOS=linux -e GOARCH=arm -e CGO_ENABLED=1 -e CC=arm-linux-gnueabihf-gcc -e CXX=arm-linux-gnueabihf-g++ go-native-builder /bin/bash
 
 teardown:
 	$(call pinfo,tearing down local env)
