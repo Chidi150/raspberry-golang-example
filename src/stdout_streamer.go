@@ -10,6 +10,11 @@ import "github.com/blackjack/webcam"
 import "os"
 import "fmt"
 import "sort"
+import "net/http"
+import "encoding/json"
+import "bytes"
+import "io/ioutil"
+import "log"
 
 func readChoice(s string) int {
 	var i int
@@ -44,6 +49,7 @@ func (slice FrameSizes) Swap(i, j int) {
 }
 
 func main() {
+	counter := 0
 	cam, err := webcam.Open("/dev/video0")
 	if err != nil {
 		panic(err.Error())
@@ -104,11 +110,47 @@ func main() {
 
 		frame, err := cam.ReadFrame()
 		if len(frame) != 0 {
+			counter++
 			print(".")
-			os.Stdout.Write(frame)
-			os.Stdout.Sync()
+			if counter > 30 {
+				counter = 0
+				GetMetaData(frame)
+			}
+
 		} else if err != nil {
 			panic(err.Error())
 		}
 	}
+}
+
+func GetMetaData(frame []byte) {
+	resp, err := http.Post("http://face.vsapi01.com/api-face/api-search?apikey=10256353-e978-4442-aef9-a1895076b5a8", "image/jpeg", bytes.NewReader(frame))
+	if err != nil {
+		log.Println("http post errpr ", err)
+		return
+	}
+	if resp != nil {
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			log.Println("error getMetaData")
+			return
+		}
+		printMetaData(body)
+	}
+	defer resp.Body.Close()
+}
+
+func printMetaData(body []byte) {
+	if body == nil {
+		return
+	}
+
+	var prettyJSON bytes.Buffer
+	error := json.Indent(&prettyJSON, body, "", "\t")
+	if error != nil {
+		log.Println("JSON parse error: ", error)
+		return
+	}
+
+	log.Println("Meta data:", string(prettyJSON.Bytes()))
 }
