@@ -1,9 +1,3 @@
-// Example program that uses blakjack/webcam library
-// for working with V4L2 devices.
-// The application reads frames from device and writes them to stdout
-// If your device supports motion formats (e.g. H264 or MJPEG) you can
-// use it's output as a video stream.
-// Example usage: go run stdout_streamer.go | vlc -
 package main
 
 import "github.com/blackjack/webcam"
@@ -11,6 +5,7 @@ import "os"
 import "fmt"
 import "sort"
 import "net/http"
+
 import "encoding/json"
 import "bytes"
 import "io/ioutil"
@@ -124,7 +119,7 @@ func main() {
 }
 
 func GetMetaData(frame []byte) {
-	resp, err := http.Post("http://face.vsapi01.com/api-face/api-search?apikey=10256353-e978-4442-aef9-a1895076b5a8", "image/jpeg", bytes.NewReader(frame))
+	resp, err := http.Post("http://face.vsapi01.com/api-face/api-search?apikey=10256353-e978-4442-aef9-a1895076b5a8", "multipart/form-data", bytes.NewReader(frame))
 	if err != nil {
 		log.Println("http post errpr ", err)
 		return
